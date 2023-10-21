@@ -1,24 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Blink.KEK.RectangularSystem
+namespace GridSystem.Square
 {
-    public class RectangularGridPlacer<T> : IEnumerable<T> where T : IPlacable
+    public class GridT<T> : IEnumerable<T> where T : IPlacable
     {
-        private readonly Dictionary<RectangularGridCell, T> _CellPlacablePairs = new();
+        private readonly Dictionary<Cell, T> _CellPlacablePairs = new();
 
-        public RectangularGridPlacer(RectangularGrid rectangularGrid)
+        public GridT(Grid grid)
         {
-            foreach (RectangularGridCell cell in rectangularGrid)
+            foreach (Cell cell in grid)
                 _CellPlacablePairs.Add(cell, default);
         }
 
-        public bool TryGetValue(RectangularGridCell cell, out T value)
+        public bool TryGetValue(Cell cell, out T value)
         {
             return _CellPlacablePairs.TryGetValue(cell, out value) && value != null;
         }
 
-        public bool Place(T value, RectangularGridCell cell)
+        public bool Place(T value, Cell cell)
         {
 
             if (_CellPlacablePairs.TryGetValue(cell, out _))

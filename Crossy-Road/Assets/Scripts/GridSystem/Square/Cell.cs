@@ -1,14 +1,13 @@
-﻿using Blink.KEK.SpaceSystem;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Blink.KEK.RectangularSystem
+namespace GridSystem.Square
 {
-    public class RectangularGridCell
+    public class Cell
     {
-        public RectangularGridVector GridPosition { get; }
+        public GridVector GridPosition { get; }
         public GameObject GameObject { get; } = new GameObject("Cell");
 
-        public RectangularGridCell(RectangularGridVector gridPosition,Vector2 localPosition, Transform parent)
+        public Cell(GridVector gridPosition,Vector2 localPosition, Transform parent)
         {
             GridPosition = gridPosition;
             GameObject.transform.SetParent(parent);
