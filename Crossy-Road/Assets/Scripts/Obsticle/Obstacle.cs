@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Obsticle : MonoBehaviour
+public class Obstacle : MonoBehaviour
 {
-    [SerializeField] ObsticleScriptableObject scriptableObject;
+    [SerializeField] ObstacleScriptableObject scriptableObject;
     private void Awake()
     {
         
