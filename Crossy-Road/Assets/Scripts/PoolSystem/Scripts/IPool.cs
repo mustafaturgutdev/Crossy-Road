@@ -1,4 +1,4 @@
-﻿namespace Blink.PoolSystem
+﻿namespace PoolSystem
 {
     public interface IPool<T> where T : IPoolable
     {

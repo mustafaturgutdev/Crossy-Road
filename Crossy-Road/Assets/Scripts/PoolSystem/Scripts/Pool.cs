@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Blink.PoolSystem
+namespace PoolSystem
 {
     public class Pool<T> : IPool<T> where T : class, IPoolable
     {
@@ -43,7 +43,4 @@ namespace Blink.PoolSystem
             }
         }
     }
-
-
-
 }

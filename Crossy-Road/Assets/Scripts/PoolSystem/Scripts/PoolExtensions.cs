@@ -1,5 +1,5 @@
 ﻿
-namespace Blink.PoolSystem
+namespace PoolSystem
 {
     public static class PoolExtensions
     {
