@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Blink.PoolSystem
+namespace PoolSystem
 {
     public class UnityObjectFactory<T> : IFactory<T> where T : Component
     {
