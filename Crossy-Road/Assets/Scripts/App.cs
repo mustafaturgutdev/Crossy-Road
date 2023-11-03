@@ -3,28 +3,6 @@ using UnityEngine;
 using GridSystem.Square;
 using PoolSystem;
 
-
-public class Rock : Obstacle
-{
-    public override ObstacleType ObstacleType => ObstacleType.Rock;
-}
-
-public abstract class Obstacle : MonoBehaviour, IPoolable, IPlacable
-{
-    public abstract ObstacleType ObstacleType { get; }
-    public Cell Cell { get; set; }
-
-    public void OnDespawned()
-    {
-        gameObject.SetActive(false);
-    }
-
-    public void OnSpawned()
-    {
-        gameObject.SetActive(true);
-    }
-}
-
 public class ObstacleManager
 {
 
@@ -72,6 +50,7 @@ public class App : MonoBehaviour
         GridManager gridManager = new GridManager(Vector3.one);
         BiomeManager biomeManager = new BiomeManager(tileManager, obstacleManager, gridManager);
 
-        //biomeManager.Initialize();
+
+        biomeManager.Initialize();
     }
 }

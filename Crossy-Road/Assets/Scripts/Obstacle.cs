@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using GridSystem.Square;
 using PoolSystem;
-public abstract class Tile : MonoBehaviour, IPoolable, IPlacable
+
+public abstract class Obstacle : MonoBehaviour, IPoolable, IPlacable
 {
-    public abstract TileType TileType { get; }
+    private Cell cell;
+    public abstract ObstacleType ObstacleType { get; }
     public Cell Cell
     {
         get => cell;
@@ -14,8 +16,6 @@ public abstract class Tile : MonoBehaviour, IPoolable, IPlacable
                 transform.position = cell.GameObject.transform.position;
         }
     }
-
-    private Cell cell;
 
     public void OnDespawned()
     {

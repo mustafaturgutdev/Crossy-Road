@@ -4,25 +4,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
+public enum BiomeType
+{
+    Road,
+    Grass,
+    Rail,
+    Water
+}
 public enum TileType
 {
+    Rail,
+    Water,
     Road,
     RoadStart,
     RoadEnd,
     RoadMiddle,
-    Grass
+    Grass1,
+    Grass2
 }
 
 public enum ObstacleType
 {
     Empty = 0,
-    Tree,
-    Rock,
+    Tree1,
+    Tree2,
+    Tree3,
+    Rock1,
+    Rock2,
+    Rock3,
 }
 
 public class BiomeManager
 {
-    private TileType lastBiome;
+    private BiomeType lastBiome;
 
     private int startRow;
     private int endRow;
@@ -39,10 +54,29 @@ public class BiomeManager
 
     private static List<ObstacleType> grassObstacles = new List<ObstacleType>()
     {
-        ObstacleType.Tree,
-        ObstacleType.Rock,
+        ObstacleType.Tree1,
+        ObstacleType.Tree2,
+        ObstacleType.Tree3,
+        ObstacleType.Rock1,
+        ObstacleType.Rock2,
+        ObstacleType.Rock3,
     };
 
+    private static List<TileType> grassTile = new List<TileType>
+    {
+        TileType.Grass1,
+        TileType.Grass2,
+    };
+
+
+    public void Initialize()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            CreateBiome();
+        }
+
+    }
     public void UpdateBiomes(int playerCurrentRow)
     {
         while (playerCurrentRow - 5 < startRow)
@@ -77,33 +111,45 @@ public class BiomeManager
                 tileManager.ReturnTile(tile);
             }
 
-            startRow +=1;
+            startRow += 1;
         }
     }
 
     private void CreateBiome()
     {
 
-        TileType biomeType;
-        do biomeType = Utils.GetRandomEnumValue<TileType>();
+        BiomeType biomeType;
+        do biomeType = Utils.GetRandomEnumValue<BiomeType>();
         while (biomeType == lastBiome);
 
-        int biomeSize = Random.Range(1, 5);
-        endRow += biomeSize;
+        lastBiome = biomeType;
 
+        int biomeSize = Random.Range(1, 5);
+
+        GridVector size=new GridVector(biomeSize, 10);
+        GridVector startPosition = new GridVector(endRow, 0);
         switch (biomeType)
         {
-            case TileType.Road:
-                CreateRoadBiome(new GridVector(biomeSize, 10), new GridVector(endRow, 0));
+            case BiomeType.Road:
+                CreateRoadBiome(size, startPosition);
                 break;
 
-            case TileType.Grass:
-                CreateGrassBiome(new GridVector(biomeSize, 10), new GridVector(endRow, 0));
+            case BiomeType.Grass:
+                CreateGrassBiome(size, startPosition);
+                break;
+
+            case BiomeType.Water:
+                CreateWaterBiome(size, startPosition);
+                break;
+
+            case BiomeType.Rail:
+                CreateRailBiome(size, startPosition);
                 break;
 
             default:
                 break;
         }
+        endRow += biomeSize;
     }
 
     private void CreateGrassBiome(GridVector biomeSize, GridVector startPosition)
@@ -114,10 +160,11 @@ public class BiomeManager
             {
                 GridVector gridPosition = startPosition + new GridVector(i, j);
 
-                gridManager.TileGrid.Place(tileManager.GetTile(TileType.Grass), gridPosition);
-
-
-                if (0.3f < Random.Range(0f, 1f))
+                if (i % 2 == 0)
+                    gridManager.TileGrid.Place(tileManager.GetTile(TileType.Grass1), gridPosition);
+                else
+                    gridManager.TileGrid.Place(tileManager.GetTile(TileType.Grass2), gridPosition);
+                if (0.9f < Random.Range(0f, 1f))
                 {
                     gridManager.ObstacleGrid.Place(obstacleManager.GetObstacle(grassObstacles[Random.Range(0, grassObstacles.Count)]), gridPosition);
                 }
@@ -125,6 +172,28 @@ public class BiomeManager
         }
     }
 
+    private void CreateRailBiome(GridVector biomeSize, GridVector startPosition)
+    {
+        for (int i = 0; i < biomeSize.Row; i++)
+        {
+            for (int j = 0; j < biomeSize.Column; j++)
+            {
+                GridVector gridPosition = startPosition + new GridVector(i, j);
+                gridManager.TileGrid.Place(tileManager.GetTile(TileType.Rail), gridPosition);
+            }
+        }
+    }
+    private void CreateWaterBiome(GridVector biomeSize, GridVector startPosition)
+    {
+        for (int i = 0; i < biomeSize.Row; i++)
+        {
+            for (int j = 0; j < biomeSize.Column; j++)
+            {
+                GridVector gridPosition = startPosition + new GridVector(i, j);
+                gridManager.TileGrid.Place(tileManager.GetTile(TileType.Water), gridPosition);
+            }
+        }
+    }
     private void CreateRoadBiome(GridVector biomeSize, GridVector startPosition)
     {
         for (int i = 0; i < biomeSize.Row; i++)

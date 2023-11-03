@@ -104,7 +104,7 @@ NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 3
+    serializedVersion: 2
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +117,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    buildHeightMesh: 0
+    accuratePlacement: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -257,17 +257,9 @@ Camera:
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
-  m_Iso: 200
-  m_ShutterSpeed: 0.005
-  m_Aperture: 16
-  m_FocusDistance: 10
-  m_FocalLength: 50
-  m_BladeCount: 5
-  m_Curvature: {x: 2, y: 11}
-  m_BarrelClipping: 0.25
-  m_Anamorphism: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -339,7 +331,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefabs:
-  - {fileID: 4520034771735396059, guid: 93916db6ce209a8409a4f6ef83a7b5ad, type: 3}
+  - {fileID: 4425186832896184833, guid: 129506c96e43d7c4cb5414b6beb9a78a, type: 3}
+  - {fileID: -8932861444238198864, guid: fd346ba3df009d04599f42a576841c7a, type: 3}
+  - {fileID: 1209611597739473074, guid: bc439843488331842ba8e801ace4ceaa, type: 3}
+  - {fileID: 5173533948575439246, guid: 7d5324ff00fec6c448b91e8249336da7, type: 3}
+  - {fileID: 6402111166563094586, guid: 0a3b6f20627435941a08c48070571ec8, type: 3}
+  - {fileID: 4204627822619853313, guid: acbfbff8186ef0544827acedfd0c9828, type: 3}
+  - {fileID: 8308321380132804492, guid: b6e91196f73f18c4f8acc38f0c7240b1, type: 3}
+  - {fileID: 4252666914226698150, guid: b7e994d5949a3fc4288cc180cdeb346b, type: 3}
+  obstaclePrefabs:
+  - {fileID: 8541104822789495869, guid: 93bc0cdaa2e34b84b85aee85e78fa718, type: 3}
+  - {fileID: 8245095703000155994, guid: 923c8016e79ca764bba2806f1a4e7676, type: 3}
+  - {fileID: 7554939354816312877, guid: 0fda65ba3c153304d9473267e6d51164, type: 3}
+  - {fileID: 3640764045697293498, guid: d2f068a2e4186854faa2b4f1fccd9187, type: 3}
+  - {fileID: 3525879653128678313, guid: 8716d1cb3772e714385da54a743a12be, type: 3}
+  - {fileID: 3809540457414583214, guid: 1d9b9bc690eb891469cb9073849138db, type: 3}
 --- !u!4 &1198639622
 Transform:
   m_ObjectHideFlags: 0

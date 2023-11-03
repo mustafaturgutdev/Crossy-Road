@@ -1,4 +1,7 @@
-﻿public class Road : Tile
+﻿using UnityEngine;
+
+public class Road : Tile
 {
-    public override TileType TileType => TileType.Road;
+    [SerializeField] private TileType tileType;
+    public override TileType TileType => tileType;
 }

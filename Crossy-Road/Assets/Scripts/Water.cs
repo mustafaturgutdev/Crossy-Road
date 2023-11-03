@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Grass : Tile
+public class Water : Tile
 {
     [SerializeField] private TileType tileType;
     public override TileType TileType => tileType;
