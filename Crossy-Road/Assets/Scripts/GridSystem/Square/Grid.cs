@@ -1,11 +1,95 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace GridSystem.Square
 {
+    public class InfinityGrid<T> : IEnumerable<Cell> where T : IPlacable
+    {
+        private readonly Dictionary<GridVector, Cell> gridPositionCellPairs = new();
+        private readonly Dictionary<Cell, T> cellPlacablePairs = new();
+
+        public Cell this[GridVector gridPosition] => gridPositionCellPairs[gridPosition];
+
+
+        public GameObject GameObject { get; } = new GameObject("Grid");
+        private readonly Vector3 cellSize;
+
+        public InfinityGrid(Vector3 cellSize)
+        {
+            this.cellSize = cellSize;
+        }
+
+        public bool TryGetValue(Cell cell, out T value)
+        {
+            return cellPlacablePairs.TryGetValue(cell, out value) && value != null;
+        }
+
+        private Cell CreateCell(GridVector gridPosition)
+        {
+            float x = cellSize.x * gridPosition.Column;
+            float z = cellSize.y * gridPosition.Row;
+
+            return new Cell(gridPosition, new Vector3(x, 0, z), GameObject.transform);
+        }
+
+
+        public void Place(T value, GridVector gridPosition)
+        {
+            if (gridPositionCellPairs.TryGetValue(gridPosition, out Cell cell))
+            {
+                cellPlacablePairs[cell] = value;
+                value.Cell = cell;
+            }
+            else
+            {
+                cell = CreateCell(gridPosition);
+                gridPositionCellPairs.Add(gridPosition, cell);
+                cellPlacablePairs.Add(cell, value);
+                value.Cell = cell;
+            }
+        }
+
+        public bool DisPlace(T value)
+        {
+            if (value != null && value.Cell != null && cellPlacablePairs.TryGetValue(value.Cell, out _))
+            {
+                Cell cell = value.Cell;
+                cellPlacablePairs.Remove(cell);
+                gridPositionCellPairs.Remove(cell.GridPosition);
+                value.Cell = default;
+                cell.Dispose();
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool DisPlace(GridVector gridVector)
+        {
+            if(gridPositionCellPairs.TryGetValue(gridVector, out Cell cell) && cellPlacablePairs.TryGetValue(cell,out T value))
+            {
+                cellPlacablePairs.Remove(cell);
+                gridPositionCellPairs.Remove(cell.GridPosition);
+                value.Cell = default;
+                cell.Dispose();
+                return true;
+            }
+            return false;
+        }
+
+        public IEnumerator<Cell> GetEnumerator()
+        {
+            foreach (var pair in gridPositionCellPairs)
+                yield return pair.Value;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+
+
     public class Grid : IEnumerable<Cell>
     {
         private readonly Cell[,] rectangularGrid;
@@ -19,7 +103,7 @@ namespace GridSystem.Square
         public Cell this[GridVector gridPosition] => rectangularGrid[gridPosition.Row, gridPosition.Column];
 
 
-        public Grid(int rowCount, int columnCount, Vector3 scale,Vector3 position)
+        public Grid(int rowCount, int columnCount, Vector3 scale, Vector3 position)
         {
 
             rectangularGrid = new Cell[rowCount, columnCount];
@@ -31,7 +115,7 @@ namespace GridSystem.Square
             this.scale = scale;
         }
 
-        private Cell CreateCell(int rowIndex, int columnIndex,Vector3 cellSize)
+        private Cell CreateCell(int rowIndex, int columnIndex, Vector3 cellSize)
         {
             float cellWidth = cellSize.x;
             float cellHeight = cellSize.y;

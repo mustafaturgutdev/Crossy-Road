@@ -1,7 +1,9 @@
 {
     "name": "GridSystem",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:ef6c409e64f79e448a738193a3d5c4cc"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
