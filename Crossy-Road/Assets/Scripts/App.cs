@@ -72,6 +72,6 @@ public class App : MonoBehaviour
         GridManager gridManager = new GridManager(Vector3.one);
         BiomeManager biomeManager = new BiomeManager(tileManager, obstacleManager, gridManager);
 
-        biomeManager.Initialize();
+        //biomeManager.Initialize();
     }
 }
