@@ -34,6 +34,15 @@ namespace GridSystem.Square
             return new Cell(gridPosition, new Vector3(x, 0, z), GameObject.transform);
         }
 
+        public Vector3 GetWorldPosition(GridVector gridPosition)
+        {
+            return new Vector3(cellSize.x * gridPosition.Column, 0, cellSize.y * gridPosition.Row);
+        }
+
+        public GridVector GetGridPosition(Vector3 worldPosition)
+        {
+            throw new NotImplementedException();
+        }
 
         public void Place(T value, GridVector gridPosition)
         {
