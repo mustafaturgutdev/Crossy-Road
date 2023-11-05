@@ -6,7 +6,7 @@ public abstract class Obstacle : MonoBehaviour, IPoolable, IPlacable
 {
     private Cell cell;
     public abstract ObstacleType ObstacleType { get; }
-    public Cell Cell
+    public virtual Cell Cell
     {
         get => cell;
         set

@@ -34,7 +34,9 @@ public enum ObstacleType
     Rock2,
     Rock3,
     Car,
-    Wood,
+    Wood1,
+    Wood2,
+    Wood3
 }
 
 public class BiomeManager
@@ -62,6 +64,13 @@ public class BiomeManager
         ObstacleType.Rock1,
         ObstacleType.Rock2,
         ObstacleType.Rock3,
+    };
+
+    private static List<ObstacleType> waterObstacles = new List<ObstacleType>()
+    {
+        ObstacleType.Wood1,
+        ObstacleType.Wood2,
+        ObstacleType.Wood3,
     };
 
     private static List<TileType> grassTiles = new List<TileType>
@@ -198,7 +207,7 @@ public class BiomeManager
             }
 
             int value = 0;
-            if (Random.Range(0f, 1f) > 0.5f)
+            if (i % 2 == 0)
                 value = -6;
             else
                 value = 6;
@@ -207,7 +216,7 @@ public class BiomeManager
     }
     private async Task SpawnWoodUntil(Vector3 spawnPosition, Vector3 endPosition)
     {
-        float duration = Random.Range(3f, 6f);
+        float velocity = Random.Range(2f, 6f);
         float frequency = Random.Range(2f, 4f);
         float elapsedTime = Random.Range(frequency / 2, frequency);
         int playerRow = playerCurrentRow;
@@ -217,10 +226,8 @@ public class BiomeManager
             elapsedTime += Time.deltaTime;
             if (elapsedTime > frequency)
             {
-                Obstacle obstacle = obstacleManager.GetObstacle(ObstacleType.Wood);
-                obstacle.transform.localScale = new Vector3(Random.Range(2f, 4f), 1, 1);
-                obstacle.transform.position = spawnPosition;
-                obstacle.transform.DOMove(endPosition, duration).SetEase(Ease.Linear).OnComplete(() => obstacleManager.ReturnObstacle(obstacle));
+                Wood obstacle = (Wood)obstacleManager.GetObstacle(waterObstacles[Random.Range(0, waterObstacles.Count)]);
+                obstacle.Move(velocity, spawnPosition, endPosition, gridManager.ObstacleGrid, () => obstacleManager.ReturnObstacle(obstacle));
                 elapsedTime = 0f;
             }
             await Task.Yield();

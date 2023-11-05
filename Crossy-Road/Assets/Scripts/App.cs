@@ -15,7 +15,9 @@ public class ObstacleManager
        { ObstacleType.Rock3,10},
 
               { ObstacleType.Car,20},
-                     { ObstacleType.Wood,20},
+                     { ObstacleType.Wood1,10},
+                     { ObstacleType.Wood2,10},
+                     { ObstacleType.Wood3,10},
     };
 
     private readonly Dictionary<ObstacleType, Pool<Obstacle>> multiPool = new();
@@ -51,10 +53,10 @@ public class GridManager
         GridVector gridVector = ObstacleGrid.GetGridPosition(position + direction);
         return ObstacleGrid.TryGetValue(gridVector, out Obstacle obstacle);
     }
-    public bool HasTile(Vector3 position, Vector3 direction)
+    public bool HasTile(Vector3 position, Vector3 direction,out Tile tile)
     {
         GridVector gridVector = TileGrid.GetGridPosition(position + direction);
-        return TileGrid.TryGetValue(gridVector, out Tile tile);
+        return TileGrid.TryGetValue(gridVector, out tile);
     }
     public Cell GetCell(Vector3 pos)
     {

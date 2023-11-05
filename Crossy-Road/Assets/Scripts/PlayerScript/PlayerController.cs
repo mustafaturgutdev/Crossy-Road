@@ -28,17 +28,22 @@ public class PlayerController : MonoBehaviour
         movementVector.z = context.ReadValue<Vector2>().y;
         movementVector.y = 0f;
         currentCell = gridManager.GetCell(transform.position + movementVector);
-        if (gridManager.IsObstacle(transform.position, movementVector) || !gridManager.HasTile(transform.position, movementVector))
+        if (gridManager.IsObstacle(transform.position, movementVector) || !gridManager.HasTile(transform.position, movementVector, out Tile tile))
         {
             return;
         }
-        MovementAnimations();
+        MovementAnimations(tile);
     }
-    private void MovementAnimations()
+    private void MovementAnimations(Tile tile)
     {
         transform.forward = movementVector;
-        transform.DOScale(localScale * 0.9f ,0.1f).OnComplete(() =>
+        transform.DOScale(localScale * 0.9f, 0.1f).OnComplete(() =>
         {
+            if (tile.TileType == TileType.Water)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
             transform.DOScale(localScale, 0.1f);
         });
         //burasý düzenlenecek
