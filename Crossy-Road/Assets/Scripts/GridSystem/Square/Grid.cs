@@ -75,9 +75,9 @@ namespace GridSystem.Square
             return false;
         }
 
-        public bool DisPlace(GridVector gridVector)
+        public bool DisPlace(GridVector gridVector, out T value)
         {
-            if(gridPositionCellPairs.TryGetValue(gridVector, out Cell cell) && cellPlacablePairs.TryGetValue(cell,out T value))
+            if (gridPositionCellPairs.TryGetValue(gridVector, out Cell cell) && cellPlacablePairs.TryGetValue(cell, out value))
             {
                 cellPlacablePairs.Remove(cell);
                 gridPositionCellPairs.Remove(cell.GridPosition);
@@ -85,6 +85,7 @@ namespace GridSystem.Square
                 cell.Dispose();
                 return true;
             }
+            value = default;
             return false;
         }
 

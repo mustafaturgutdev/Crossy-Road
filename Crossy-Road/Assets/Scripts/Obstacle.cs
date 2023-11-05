@@ -1,17 +1,6 @@
 ﻿using UnityEngine;
 using GridSystem.Square;
 using PoolSystem;
-using System.Threading.Tasks;
-using System;
-using DG.Tweening;
-
-public class Car : Obstacle
-{
-    [SerializeField] private ObstacleType obstacleType;
-    public override ObstacleType ObstacleType => obstacleType;
-
-
-}
 
 public abstract class Obstacle : MonoBehaviour, IPoolable, IPlacable
 {

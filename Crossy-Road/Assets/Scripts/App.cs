@@ -5,12 +5,24 @@ using PoolSystem;
 
 public class ObstacleManager
 {
+    private static Dictionary<ObstacleType,int> obstacleInitialSize = new Dictionary<ObstacleType,int>()
+    {
+       { ObstacleType.Tree1,10},
+       { ObstacleType.Tree2,10},
+       { ObstacleType.Tree3,10},
+       { ObstacleType.Rock1,10},
+       { ObstacleType.Rock2,10},
+       { ObstacleType.Rock3,10},
+
+              { ObstacleType.Car,20},
+                     { ObstacleType.Wood,20},
+    };
 
     private readonly Dictionary<ObstacleType, Pool<Obstacle>> multiPool = new();
     public ObstacleManager(List<Obstacle> obstaclePrefabs)
     {
         foreach (Obstacle obstaclePrefab in obstaclePrefabs)
-            multiPool.Add(obstaclePrefab.ObstacleType, new Pool<Obstacle>(new UnityObjectFactory<Obstacle>(obstaclePrefab), 50));
+            multiPool.Add(obstaclePrefab.ObstacleType, new Pool<Obstacle>(new UnityObjectFactory<Obstacle>(obstaclePrefab), obstacleInitialSize[obstaclePrefab.ObstacleType]));
     }
 
 
@@ -39,6 +51,7 @@ public class App : MonoBehaviour
 {
     [SerializeField] private List<Tile> tilePrefabs;
     [SerializeField] private List<Obstacle> obstaclePrefabs;
+    private BiomeManager biomeManager;
 
 
     // Start is called before the first frame update
@@ -48,9 +61,18 @@ public class App : MonoBehaviour
         TileManager tileManager = new TileManager(tilePrefabs);
         ObstacleManager obstacleManager = new ObstacleManager(obstaclePrefabs);
         GridManager gridManager = new GridManager(Vector3.one);
-        BiomeManager biomeManager = new BiomeManager(tileManager, obstacleManager, gridManager);
+         biomeManager = new BiomeManager(tileManager, obstacleManager, gridManager);
 
 
         biomeManager.Initialize();
+    }
+    private int playerCurrentRow=1;
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            playerCurrentRow++;
+            biomeManager.UpdateBiomes(playerCurrentRow);
+        }
     }
 }

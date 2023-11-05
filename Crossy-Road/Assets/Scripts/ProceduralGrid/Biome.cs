@@ -1,7 +1,5 @@
 using DG.Tweening;
 using GridSystem.Square;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -36,6 +34,7 @@ public enum ObstacleType
     Rock2,
     Rock3,
     Car,
+    Wood,
 }
 
 public class BiomeManager
@@ -85,54 +84,45 @@ public class BiomeManager
     {
         CreateGrassBiome(new GridVector(4, 11), new GridVector(0, -5));
 
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 6; i++)
         {
             CreateBiome();
         }
 
     }
-    public void UpdateBiomes(int playerCurrentRow)
+    public async void UpdateBiomes(int playerCurrentRow)
     {
-        while (playerCurrentRow - 5 < startRow)
+        this.playerCurrentRow = playerCurrentRow;
+        while (playerCurrentRow - 10 > startRow)
         {
             DestroyBiome();
+            await Task.Yield();
         }
 
-        while (playerCurrentRow + 5 > endRow)
+        while (playerCurrentRow + 10 > endRow)
         {
             CreateBiome();
+            await Task.Yield();
         }
     }
 
     private void DestroyBiome()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = -5; i <= 5; i++)
         {
-            GridVector gridPos = new GridVector(startRow, i);
+            GridVector gridPosition = new GridVector(startRow, i);
 
-            Cell obstacleCell = gridManager.ObstacleGrid[gridPos];
-            if (gridManager.ObstacleGrid.TryGetValue(obstacleCell, out Obstacle obstacle))
-            {
-                gridManager.ObstacleGrid.DisPlace(obstacle);
+            if (gridManager.ObstacleGrid.DisPlace(gridPosition, out Obstacle obstacle))
                 obstacleManager.ReturnObstacle(obstacle);
-            }
 
-            Cell tileCell = gridManager.TileGrid[gridPos];
-            if (gridManager.TileGrid.TryGetValue(tileCell, out Tile tile))
-            {
-                gridManager.TileGrid.DisPlace(tile);
+            if (gridManager.TileGrid.DisPlace(gridPosition, out Tile tile))
                 tileManager.ReturnTile(tile);
-            }
-
-            startRow += 1;
         }
+        startRow += 1;
     }
 
     private void CreateBiome()
     {
-
-
-
         BiomeType biomeType;
         do biomeType = biomes[Random.Range(0, biomes.Count)];
         while (biomeType == lastBiome /*|| (biomeType == BiomeType.Rail && lastBiome == BiomeType.Road)*/);
@@ -177,7 +167,8 @@ public class BiomeManager
                     gridManager.TileGrid.Place(tileManager.GetTile(TileType.Grass1), gridPosition);
                 else
                     gridManager.TileGrid.Place(tileManager.GetTile(TileType.Grass2), gridPosition);
-                if (j != 5 && 0.9f < Random.Range(0f, 1f))
+
+                if (j != 5 && 0.83f < Random.Range(0f, 1f))
                 {
                     gridManager.ObstacleGrid.Place(obstacleManager.GetObstacle(grassObstacles[Random.Range(0, grassObstacles.Count)]), gridPosition);
                 }
@@ -205,8 +196,37 @@ public class BiomeManager
                 GridVector gridPosition = startPosition + new GridVector(i, j);
                 gridManager.TileGrid.Place(tileManager.GetTile(TileType.Water), gridPosition);
             }
+
+            int value = 0;
+            if (Random.Range(0f, 1f) > 0.5f)
+                value = -6;
+            else
+                value = 6;
+            _ = SpawnWoodUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)));
         }
     }
+    private async Task SpawnWoodUntil(Vector3 spawnPosition, Vector3 endPosition)
+    {
+        float duration = Random.Range(3f, 6f);
+        float frequency = Random.Range(2f, 4f);
+        float elapsedTime = Random.Range(frequency / 2, frequency);
+        int playerRow = playerCurrentRow;
+
+        while (playerRow + 30 > endRow)
+        {
+            elapsedTime += Time.deltaTime;
+            if (elapsedTime > frequency)
+            {
+                Obstacle obstacle = obstacleManager.GetObstacle(ObstacleType.Wood);
+                obstacle.transform.localScale = new Vector3(Random.Range(2f, 4f), 1, 1);
+                obstacle.transform.position = spawnPosition;
+                obstacle.transform.DOMove(endPosition, duration).SetEase(Ease.Linear).OnComplete(() => obstacleManager.ReturnObstacle(obstacle));
+                elapsedTime = 0f;
+            }
+            await Task.Yield();
+        }
+    }
+
     private void CreateRoadBiome(GridVector biomeSize, GridVector startPosition)
     {
         for (int i = 0; i < biomeSize.Row; i++)
@@ -225,72 +245,40 @@ public class BiomeManager
                     else gridManager.TileGrid.Place(tileManager.GetTile(TileType.RoadMiddle), gridPosition);
                 }
             }
-
-            _ = SpawnUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(i, -6)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(i, 6)));
+            int value = 0;
+            if (Random.Range(0f, 1f) > 0.5f)
+                value = -6;
+            else
+                value = 6;
+            _ = SpawnCarUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)), value == 6);
 
         }
     }
 
-    private async Task SpawnUntil(Vector3 spawnPosition, Vector3 endPosition)
+    private async Task SpawnCarUntil(Vector3 spawnPosition, Vector3 endPosition, bool positive)
     {
-        float duration = Random.Range(4, 12);
-        float frequency = Random.Range(1, 3);
+        float duration = Random.Range(4f, 8f);
+        float frequency = Random.Range(3f, 6f);
+        float elapsedTime = Random.Range(frequency / 2, frequency);
         int playerRow = playerCurrentRow;
 
 
 
-        //while (playerRow+5+ < playerCurrentRow)
-        //{
-
-        //}
-
-
-        Obstacle obstacle = obstacleManager.GetObstacle(ObstacleType.Car);
-        obstacle.transform.position = spawnPosition;
-        obstacle.transform.DOMove(endPosition, duration).OnComplete(() => obstacleManager.ReturnObstacle(obstacle));
+        while (playerRow + 30 > endRow)
+        {
+            elapsedTime += Time.deltaTime;
+            if (elapsedTime > frequency)
+            {
+                Obstacle obstacle = obstacleManager.GetObstacle(ObstacleType.Car);
+                if (positive)
+                    obstacle.transform.eulerAngles = new Vector3(-90, 90, 0);
+                else
+                    obstacle.transform.eulerAngles = new Vector3(-90, -90, 0);
+                obstacle.transform.position = spawnPosition;
+                obstacle.transform.DOMove(endPosition, duration).SetEase(Ease.Linear).OnComplete(() => obstacleManager.ReturnObstacle(obstacle));
+                elapsedTime = 0f;
+            }
+            await Task.Yield();
+        }
     }
-}
-
-public class RoadBiome : Biome
-{
-    public RoadBiome(GridVector biomeSize, GridVector startPosition, float frequency) : base(biomeSize, startPosition, frequency)
-    {
-    }
-}
-
-public class GrassBiome : Biome
-{
-
-
-    public GrassBiome(GridVector biomeSize, GridVector startPosition, float frequency) : base(biomeSize, startPosition, frequency)
-    {
-    }
-}
-
-public class Biome : IDisposable, IEnumerable<ObstacleType>
-{
-    protected readonly float frequency;
-    public ObstacleType[,] Obstacles { get; }
-    public GridVector BiomeSize { get; }
-    public GridVector StartPosition { get; }
-
-    public Biome(GridVector biomeSize, GridVector startPosition, float frequency)
-    {
-        Obstacles = new ObstacleType[biomeSize.Row, biomeSize.Column];
-        BiomeSize = biomeSize;
-        StartPosition = startPosition;
-        this.frequency = frequency;
-    }
-
-    public void Dispose()
-    {
-    }
-
-    public IEnumerator<ObstacleType> GetEnumerator()
-    {
-        foreach (ObstacleType obstacleType in Obstacles)
-            yield return obstacleType;
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
