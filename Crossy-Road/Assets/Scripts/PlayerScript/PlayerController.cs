@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider collider)
     {
-        if (collider.CompareTag("Car")) Destroy(gameObject);
+        if (collider.CompareTag("Car")) gameObject.SetActive(false);
     }
     private void OnEnable()
     {
