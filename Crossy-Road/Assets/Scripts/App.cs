@@ -46,9 +46,24 @@ public class GridManager
         ObstacleGrid = new InfinityGrid<Obstacle>(cellSize);
         TileGrid = new InfinityGrid<Tile>(cellSize);
     }
+    public bool IsObstacle(Vector3 position, Vector3 direction)
+    {
+        GridVector gridVector = ObstacleGrid.GetGridPosition(position + direction);
+        return ObstacleGrid.TryGetValue(gridVector, out Obstacle obstacle);
+    }
+    public bool HasTile(Vector3 position, Vector3 direction)
+    {
+        GridVector gridVector = TileGrid.GetGridPosition(position + direction);
+        return TileGrid.TryGetValue(gridVector, out Tile tile);
+    }
+    public Cell GetCell(Vector3 pos)
+    {
+        return TileGrid[TileGrid.GetGridPosition(pos)];
+    }
 }
 public class App : MonoBehaviour
 {
+    [SerializeField] private PlayerController player;
     [SerializeField] private List<Tile> tilePrefabs;
     [SerializeField] private List<Obstacle> obstaclePrefabs;
     private BiomeManager biomeManager;
@@ -65,6 +80,7 @@ public class App : MonoBehaviour
 
 
         biomeManager.Initialize();
+        player.Initialize(gridManager, biomeManager);
     }
     private int playerCurrentRow=1;
     private void Update()

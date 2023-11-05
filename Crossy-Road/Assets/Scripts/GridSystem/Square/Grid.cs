@@ -10,6 +10,7 @@ namespace GridSystem.Square
         private readonly Dictionary<GridVector, Cell> gridPositionCellPairs = new();
         private readonly Dictionary<Cell, T> cellPlacablePairs = new();
 
+        //düzenlenecek
         public Cell this[GridVector gridPosition] => gridPositionCellPairs[gridPosition];
 
 
@@ -25,6 +26,11 @@ namespace GridSystem.Square
         {
             return cellPlacablePairs.TryGetValue(cell, out value) && value != null;
         }
+        public bool TryGetValue(GridVector gridPosition, out T value)
+        {
+            value = default(T);
+            return gridPositionCellPairs.TryGetValue(gridPosition, out Cell cell) && TryGetValue(cell, out value);
+        }
 
         private Cell CreateCell(GridVector gridPosition)
         {
@@ -38,10 +44,12 @@ namespace GridSystem.Square
         {
             return new Vector3(cellSize.x * gridPosition.Column, 0, cellSize.y * gridPosition.Row);
         }
-
         public GridVector GetGridPosition(Vector3 worldPosition)
         {
-            throw new NotImplementedException();
+            int row = Mathf.FloorToInt(worldPosition.z / cellSize.y);
+            int column = Mathf.FloorToInt(worldPosition.x / cellSize.x);
+
+            return new GridVector(row, column);
         }
 
         public void Place(T value, GridVector gridPosition)
