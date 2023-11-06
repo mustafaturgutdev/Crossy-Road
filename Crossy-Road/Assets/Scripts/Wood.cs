@@ -13,6 +13,7 @@ public class Wood : Obstacle, IMovable
     public override Cell Cell { get ; set ; }
     [SerializeField] private ObstacleType obstacleType;
     [SerializeField] private List<Transform> transforms;
+
     public override ObstacleType ObstacleType => obstacleType;
 
     public async void Move(float velocity,Vector3 startPosition, Vector3 endPosition, InfinityGrid<Obstacle> grid, Action onComplete)
