@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5365250635215240016}
   - component: {fileID: 4252666914226698150}
   m_Layer: 0
-  m_Name: Rail
+  m_Name: Rail1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

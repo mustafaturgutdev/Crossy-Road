@@ -3,6 +3,7 @@ using GridSystem.Square;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public enum BiomeType
@@ -21,7 +22,8 @@ public enum TileType
     RoadEnd,
     RoadMiddle,
     Grass1,
-    Grass2
+    Grass2,
+    RailLight
 }
 
 public enum ObstacleType
@@ -36,11 +38,13 @@ public enum ObstacleType
     Car,
     Wood1,
     Wood2,
-    Wood3
+    Wood3,
+    Train
 }
 
 public class BiomeManager
 {
+    private int spawnLenght = 10;
     private BiomeType lastBiome = BiomeType.Grass;
     private int playerCurrentRow;
     private int startRow;
@@ -189,11 +193,25 @@ public class BiomeManager
     {
         for (int i = 0; i < biomeSize.Row; i++)
         {
+            Transform light = default;
             for (int j = 0; j < biomeSize.Column; j++)
             {
                 GridVector gridPosition = startPosition + new GridVector(i, j);
-                gridManager.TileGrid.Place(tileManager.GetTile(TileType.Rail), gridPosition);
+                if (j + startPosition.Column == 0)
+                {
+                    Tile tile = tileManager.GetTile(TileType.RailLight);
+                    light = tile.transform.GetChild(0);
+                    gridManager.TileGrid.Place(tile, gridPosition);
+                }
+                else gridManager.TileGrid.Place(tileManager.GetTile(TileType.Rail), gridPosition);
             }
+
+            int value = 0;
+            if (i % 2 == 0)
+                value = -20;
+            else
+                value = 20;
+            _ = SpawnTrainUntil(light, gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)), value == 20);
         }
     }
     private void CreateWaterBiome(GridVector biomeSize, GridVector startPosition)
@@ -208,10 +226,43 @@ public class BiomeManager
 
             int value = 0;
             if (i % 2 == 0)
-                value = -6;
+                value = -spawnLenght;
             else
-                value = 6;
+                value = spawnLenght;
             _ = SpawnWoodUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)));
+        }
+    }
+    private async Task SpawnTrainUntil(Transform light, Vector3 spawnPosition, Vector3 endPosition, bool positive)
+    {
+        float duration = 1f;
+        float frequency = Random.Range(8f, 12f);
+        float elapsedTime = Random.Range(frequency / 2, frequency);
+        int playerRow = playerCurrentRow;
+
+        bool lightOn = true;
+
+        while (playerRow + 30 > endRow)
+        {
+            elapsedTime += Time.deltaTime;
+            if (elapsedTime > frequency)
+            {
+                Obstacle obstacle = obstacleManager.GetObstacle(ObstacleType.Train);
+                if (positive)
+                    obstacle.transform.eulerAngles = new Vector3(0, 90, 0);
+                else
+                    obstacle.transform.eulerAngles = new Vector3(0, -90, 0);
+                obstacle.transform.position = spawnPosition;
+                obstacle.transform.DOMove(endPosition, duration).SetEase(Ease.Linear).OnComplete(() => obstacleManager.ReturnObstacle(obstacle));
+                elapsedTime = 0f;
+                light.localScale = new Vector3(0.1f, 1f, 0.1f);
+                lightOn = true;
+            }
+            else if (lightOn && frequency - elapsedTime < 1.5f)
+            {
+                light.localScale = new Vector3(0.2f, 2, 0.2f);
+                lightOn= false;
+            }
+            await Task.Yield();
         }
     }
     private async Task SpawnWoodUntil(Vector3 spawnPosition, Vector3 endPosition)
@@ -254,10 +305,10 @@ public class BiomeManager
             }
             int value = 0;
             if (Random.Range(0f, 1f) > 0.5f)
-                value = -6;
+                value = -spawnLenght;
             else
-                value = 6;
-            _ = SpawnCarUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)), value == 6);
+                value = spawnLenght;
+            _ = SpawnCarUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)), value == spawnLenght);
 
         }
     }

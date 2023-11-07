@@ -22,14 +22,18 @@ namespace GridSystem.Square
             this.cellSize = cellSize;
         }
 
+        public bool TryGetCell(GridVector gridVector, out Cell cell)
+        {
+            return gridPositionCellPairs.TryGetValue(gridVector, out cell);
+        }
         public bool TryGetValue(Cell cell, out T value)
         {
             return cellPlacablePairs.TryGetValue(cell, out value) && value != null;
         }
         public bool TryGetValue(GridVector gridPosition, out T value)
         {
-            value = default(T);
-            return gridPositionCellPairs.TryGetValue(gridPosition, out Cell cell) && TryGetValue(cell, out value);
+            value = default;
+            return TryGetCell(gridPosition, out Cell cell) && TryGetValue(cell, out value);
         }
 
         private Cell CreateCell(GridVector gridPosition)

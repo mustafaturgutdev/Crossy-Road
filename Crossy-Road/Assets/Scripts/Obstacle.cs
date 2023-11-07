@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using GridSystem.Square;
 using PoolSystem;
-
 public abstract class Obstacle : MonoBehaviour, IPoolable, IPlacable
 {
     private Cell cell;

@@ -1,5 +1,6 @@
 using DG.Tweening;
 using GridSystem.Square;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,9 @@ public class PlayerController : MonoBehaviour
     BiomeManager biomeManager;
     Vector3 localScale;
     Cell nextCell;
+
+
+
     private void Awake()
     {
         localScale = transform.localScale;
@@ -27,31 +31,69 @@ public class PlayerController : MonoBehaviour
         movementVector.x = context.ReadValue<Vector2>().x;
         movementVector.z = context.ReadValue<Vector2>().y;
         movementVector.y = 0f;
-        nextCell = gridManager.GetCell(transform.position + movementVector);
+
+        GridVector nextGridPos = gridManager.TileGrid.GetGridPosition(transform.position + movementVector);
+        if (gridManager.TileGrid.TryGetCell(nextGridPos, out Cell cell))
+        {
+            if (gridManager.TileGrid.TryGetValue(cell, out Tile tile))
+            {
+                if (tile is Water)
+                {
+                    if (gridManager.ObstacleGrid.TryGetValue(nextGridPos, out Obstacle obstacle))
+                    {
+                        if (obstacle is Wood wood)
+                        {
+                            foreach (var pair in wood.Slots)
+                            {
+                                if (pair.Value.GridPosition == cell.GridPosition)
+                                {
+                                    MovementAnimations(pair.Key.position);
+                                }
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        MovementAnimations(tile.transform.position);
+                    }
+
+                }
+                else if (gridManager.ObstacleGrid.TryGetValue(nextGridPos, out Obstacle obstacle))
+                {
+                    return;
+                }
+                MovementAnimations(tile.transform.position);
+                //if (gridManager.ObstacleGrid.TryGetValue)
+
+
+            }
+            nextCell = cell;
+        }
+
         //eðer nextCell water biom ise burada water biomdan bir fonksiyon çaðýracaksýn bu fonksiyon kontrol edecek currentCell available mý deðil mi
         //ya da water biom mu bakmak yerine bir sonraki tile water tipi mi onu kontrol edebilir o çok bir þey fark etmez
-        if (gridManager.TileGrid.TryGetValue(nextCell.GridPosition, out Tile tile) && tile.TileType == TileType.Water)
-        {
-           if( gridManager.ObstacleGrid.TryGetValue(nextCell.GridPosition, out Obstacle obstacle))
-            {
-                Wood wood = obstacle as Wood;
-            }
-        }
-        if (gridManager.IsObstacle(transform.position, movementVector) || !gridManager.HasTile(transform.position, movementVector, out Tile tile1))
-        {
-            return;
-        }
-        MovementAnimations(tile);
+        //if (gridManager.TileGrid.TryGetValue(nextCell.GridPosition, out Tile tile) && tile.TileType == TileType.Water)
+        //{
+        //    if (gridManager.ObstacleGrid.TryGetValue(nextCell.GridPosition, out Obstacle obstacle))
+        //    {
+        //        Wood wood = obstacle as Wood;
+        //    }
+        //}
+        //if (gridManager.IsObstacle(transform.position, movementVector) || !gridManager.HasTile(transform.position, movementVector, out Tile tile1))
+        //{
+        //    return;
+        //}
+
     }
-    private void MovementAnimations(Tile tile)
+    private void MovementAnimations(Vector3 movePosition)
     {
         transform.forward = movementVector;
         transform.DOScale(localScale * 0.9f, 0.1f).OnComplete(() =>
         {
             transform.DOScale(localScale, 0.1f);
         });
-        //burasý düzenlenecek
-        transform.DOJump(nextCell.GameObject.transform.position, 1, 1, 0.1f);
+        transform.DOJump(movePosition, 1, 1, 0.1f);
     }
     public void Initialize(GridManager gridManager, BiomeManager biomeManager)
     {
@@ -61,7 +103,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider collider)
     {
-        if (collider.CompareTag("Car")) gameObject.SetActive(false);
+        if (collider.CompareTag("Car")|| collider.CompareTag("Train")) gameObject.SetActive(false);
     }
     private void OnEnable()
     {
