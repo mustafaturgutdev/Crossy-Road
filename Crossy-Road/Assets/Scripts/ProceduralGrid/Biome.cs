@@ -39,7 +39,8 @@ public enum ObstacleType
     Wood1,
     Wood2,
     Wood3,
-    Train
+    Train,
+    Truck,
 }
 
 public class BiomeManager
@@ -59,6 +60,11 @@ public class BiomeManager
         this.obstacleManager = obstacleManager;
         this.gridManager = gridManager;
     }
+    private static List<ObstacleType> roadObstacles = new List<ObstacleType>()
+    {
+        ObstacleType.Car,
+        ObstacleType.Truck,
+    };
 
     private static List<ObstacleType> grassObstacles = new List<ObstacleType>()
     {
@@ -260,7 +266,7 @@ public class BiomeManager
             else if (lightOn && frequency - elapsedTime < 1.5f)
             {
                 light.localScale = new Vector3(0.2f, 2, 0.2f);
-                lightOn= false;
+                lightOn = false;
             }
             await Task.Yield();
         }
@@ -327,11 +333,12 @@ public class BiomeManager
             elapsedTime += Time.deltaTime;
             if (elapsedTime > frequency)
             {
-                Obstacle obstacle = obstacleManager.GetObstacle(ObstacleType.Car);
+                Obstacle obstacle = obstacleManager.GetObstacle(roadObstacles[Random.Range(0,roadObstacles.Count)]);
+
                 if (positive)
-                    obstacle.transform.eulerAngles = new Vector3(-90, 90, 0);
+                    obstacle.transform.eulerAngles = new Vector3(0, -90, 0);
                 else
-                    obstacle.transform.eulerAngles = new Vector3(-90, -90, 0);
+                    obstacle.transform.eulerAngles = new Vector3(0, 90, 0);
                 obstacle.transform.position = spawnPosition;
                 obstacle.transform.DOMove(endPosition, duration).SetEase(Ease.Linear).OnComplete(() => obstacleManager.ReturnObstacle(obstacle));
                 elapsedTime = 0f;

@@ -17,6 +17,7 @@ public class ObstacleManager
                      { ObstacleType.Wood2,10},
                      { ObstacleType.Wood3,10},
                                           { ObstacleType.Train,10},
+                                          { ObstacleType.Truck,10},
     };
 
     private readonly Dictionary<ObstacleType, Pool<Obstacle>> multiPool = new();
