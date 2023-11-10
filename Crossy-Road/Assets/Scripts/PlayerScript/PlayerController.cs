@@ -1,11 +1,13 @@
 using DG.Tweening;
 using GridSystem.Square;
-using System.Threading.Tasks;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Transform eagleTransform;
+    bool eagleCheck = false;
     InputSystem inputSystem;
     Vector3 movementVector;
     GridManager gridManager;
@@ -13,7 +15,7 @@ public class PlayerController : MonoBehaviour
     Vector3 localScale;
     Cell nextCell;
 
-
+    int maxScore = 0;
 
     private void Awake()
     {
@@ -28,6 +30,8 @@ public class PlayerController : MonoBehaviour
     }
     private void Movement(InputAction.CallbackContext context)
     {
+        if (eagleCheck) return;
+
         movementVector.x = context.ReadValue<Vector2>().x;
         movementVector.z = context.ReadValue<Vector2>().y;
         movementVector.y = 0f;
@@ -47,7 +51,7 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (pair.Value.GridPosition == cell.GridPosition)
                                 {
-                                    MovementAnimations(pair.Key.position);
+                                    MovementAnimations(pair.Key.position, EagleKillCheck);
                                 }
                             }
                         }
@@ -55,7 +59,7 @@ public class PlayerController : MonoBehaviour
                     }
                     else
                     {
-                        MovementAnimations(tile.transform.position);
+                        MovementAnimations(tile.transform.position, EagleKillCheck);
                     }
 
                 }
@@ -63,13 +67,14 @@ public class PlayerController : MonoBehaviour
                 {
                     return;
                 }
-                MovementAnimations(tile.transform.position);
+                MovementAnimations(tile.transform.position, EagleKillCheck);
                 //if (gridManager.ObstacleGrid.TryGetValue)
 
 
             }
             nextCell = cell;
         }
+
 
         //eðer nextCell water biom ise burada water biomdan bir fonksiyon çaðýracaksýn bu fonksiyon kontrol edecek currentCell available mý deðil mi
         //ya da water biom mu bakmak yerine bir sonraki tile water tipi mi onu kontrol edebilir o çok bir þey fark etmez
@@ -86,14 +91,39 @@ public class PlayerController : MonoBehaviour
         //}
 
     }
-    private void MovementAnimations(Vector3 movePosition)
+
+    private void EagleKillCheck()
     {
+        if (maxScore < nextCell.GridPosition.Row)
+            maxScore = nextCell.GridPosition.Row;
+        else if (maxScore > nextCell.GridPosition.Row + 3)
+        {
+            CameraController.isFollowing = false;
+            eagleCheck = true;
+            eagleTransform.gameObject.SetActive(true);
+            Vector3 eaglePosition = eagleTransform.position;
+            Sequence sequence = DOTween.Sequence();
+            sequence.
+                Append(eagleTransform.DOMove(transform.position + Vector3.up, 2f).SetEase(Ease.InQuad)).
+                Append(transform.
+                    DOMove(transform.position + new Vector3(eaglePosition.x, eaglePosition.y, -eaglePosition.z), 2f).
+                    SetEase(Ease.InQuad).
+                    OnComplete(() => gameObject.SetActive(false)));
+        }
+
+    }
+    private void MovementAnimations(Vector3 movePosition, Action onComplete = null)
+    {
+
+
+
+
         transform.forward = movementVector;
         transform.DOScale(localScale * 0.9f, 0.1f).OnComplete(() =>
         {
             transform.DOScale(localScale, 0.1f);
         });
-        transform.DOJump(movePosition, 1, 1, 0.1f);
+        transform.DOJump(movePosition, 1, 1, 0.1f).OnComplete(() => onComplete?.Invoke());
     }
     public void Initialize(GridManager gridManager, BiomeManager biomeManager)
     {
@@ -103,7 +133,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider collider)
     {
-        if (collider.CompareTag("Car")|| collider.CompareTag("Train")) gameObject.SetActive(false);
+        if (collider.CompareTag("Car") || collider.CompareTag("Train")) gameObject.SetActive(false);
     }
     private void OnEnable()
     {
