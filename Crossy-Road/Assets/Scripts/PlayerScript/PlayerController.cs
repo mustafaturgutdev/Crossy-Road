@@ -30,6 +30,36 @@ public class PlayerController : MonoBehaviour
     {
         biomeManager.UpdateBiomes(nextCell.GridPosition.Row);
     }
+#if UNITY_ANDROID
+    private void Movement(InputAction.CallbackContext context)
+    {
+        movementVector = new Vector3(0,0,1);
+        GridVector nextGridPos = gridManager.TileGrid.GetGridPosition(transform.position + movementVector);
+        if (nextGridPos.Column < -5 || nextGridPos.Column > 5) return;
+        if (gridManager.TileGrid.TryGetCell(nextGridPos, out Cell cell))
+        {
+            if (gridManager.TileGrid.TryGetValue(cell, out Tile tile))
+            {
+                if (tile is Water)
+                {
+                    if (!gridManager.ObstacleGrid.TryGetValue(nextGridPos, out _))
+                    {
+                        MovementAnimations(tile.transform.position, Kill);
+                    }
+                }
+                else if (gridManager.ObstacleGrid.TryGetValue(nextGridPos, out Obstacle obstacle))
+                {
+                    return;
+                }
+                MovementAnimations(tile.transform.position, EagleKillCheck);
+            }
+            nextCell = cell;
+        }
+    }
+    
+#endif
+    
+#if UNITY_EDITOR
     private void Movement(InputAction.CallbackContext context)
     {
         if (eagleCheck) return;
@@ -62,7 +92,7 @@ public class PlayerController : MonoBehaviour
             nextCell = cell;
         }
     }
-
+#endif
     private void UpdateScore(int score)
     {
         maxScore = score;

@@ -107,7 +107,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""up"",
                     ""id"": ""11b4f640-0357-4796-be65-b596238cc371"",
-                    ""path"": ""<AndroidJoystick>/stick/up"",
+                    ""path"": ""<Touchscreen>/primaryTouch/tap"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -118,7 +118,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""down"",
                     ""id"": ""22c7c127-923d-40a2-b332-938cc4bd2639"",
-                    ""path"": ""<AndroidJoystick>/stick/down"",
+                    ""path"": ""<Touchscreen>/delta/down"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
