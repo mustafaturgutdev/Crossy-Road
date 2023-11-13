@@ -39,17 +39,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             ],
             ""bindings"": [
                 {
-                    ""name"": """",
-                    ""id"": ""1e04512e-9c9e-43dc-a21b-0fa616464208"",
-                    ""path"": ""<AndroidJoystick>/stick"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Movement"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
                     ""name"": ""2D Vector"",
                     ""id"": ""f9b6642f-b354-434e-8ba3-4a38c1a6b6f7"",
                     ""path"": ""2DVector"",
@@ -97,6 +86,61 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""name"": ""right"",
                     ""id"": ""ab12de76-3582-4796-915e-b0316f9af10c"",
                     ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""95003341-43c3-4b47-bda1-572ed24c9464"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""11b4f640-0357-4796-be65-b596238cc371"",
+                    ""path"": ""<AndroidJoystick>/stick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""22c7c127-923d-40a2-b332-938cc4bd2639"",
+                    ""path"": ""<AndroidJoystick>/stick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""c45dca98-fd87-49ca-bd67-a4201e4eb407"",
+                    ""path"": ""<AndroidJoystick>/stick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""ae34d04a-8428-4cab-97dc-6319b82865e4"",
+                    ""path"": ""<AndroidJoystick>/stick/right"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
