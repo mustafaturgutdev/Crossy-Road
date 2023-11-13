@@ -1,12 +1,14 @@
 using DG.Tweening;
 using GridSystem.Square;
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Transform eagleTransform;
+    [SerializeField] private TextMeshProUGUI scoreText;
     bool eagleCheck = false;
     InputSystem inputSystem;
     Vector3 movementVector;
@@ -37,67 +39,45 @@ public class PlayerController : MonoBehaviour
         movementVector.y = 0f;
 
         GridVector nextGridPos = gridManager.TileGrid.GetGridPosition(transform.position + movementVector);
+        if (nextGridPos.Column < -5 || nextGridPos.Column > 5) return;
         if (gridManager.TileGrid.TryGetCell(nextGridPos, out Cell cell))
         {
             if (gridManager.TileGrid.TryGetValue(cell, out Tile tile))
             {
                 if (tile is Water)
                 {
-                    if (gridManager.ObstacleGrid.TryGetValue(nextGridPos, out Obstacle obstacle))
+                    if (!gridManager.ObstacleGrid.TryGetValue(nextGridPos, out _))
                     {
-                        if (obstacle is Wood wood)
-                        {
-                            foreach (var pair in wood.Slots)
-                            {
-                                if (pair.Value.GridPosition == cell.GridPosition)
-                                {
-                                    MovementAnimations(pair.Key.position, EagleKillCheck);
-                                }
-                            }
-                        }
-
+                        MovementAnimations(tile.transform.position, Kill);
                     }
-                    else
-                    {
-                        MovementAnimations(tile.transform.position, EagleKillCheck);
-                    }
-
                 }
                 else if (gridManager.ObstacleGrid.TryGetValue(nextGridPos, out Obstacle obstacle))
                 {
                     return;
                 }
                 MovementAnimations(tile.transform.position, EagleKillCheck);
-                //if (gridManager.ObstacleGrid.TryGetValue)
 
 
             }
             nextCell = cell;
         }
-
-
-        //eðer nextCell water biom ise burada water biomdan bir fonksiyon çaðýracaksýn bu fonksiyon kontrol edecek currentCell available mý deðil mi
-        //ya da water biom mu bakmak yerine bir sonraki tile water tipi mi onu kontrol edebilir o çok bir þey fark etmez
-        //if (gridManager.TileGrid.TryGetValue(nextCell.GridPosition, out Tile tile) && tile.TileType == TileType.Water)
-        //{
-        //    if (gridManager.ObstacleGrid.TryGetValue(nextCell.GridPosition, out Obstacle obstacle))
-        //    {
-        //        Wood wood = obstacle as Wood;
-        //    }
-        //}
-        //if (gridManager.IsObstacle(transform.position, movementVector) || !gridManager.HasTile(transform.position, movementVector, out Tile tile1))
-        //{
-        //    return;
-        //}
-
     }
 
+    private void UpdateScore(int score)
+    {
+        maxScore = score;
+        scoreText.text = maxScore.ToString();
+    }
     private void EagleKillCheck()
     {
         if (maxScore < nextCell.GridPosition.Row)
-            maxScore = nextCell.GridPosition.Row;
+        {
+            UpdateScore(nextCell.GridPosition.Row);
+        }
+
         else if (maxScore > nextCell.GridPosition.Row + 3)
         {
+            gameObject.GetComponent<Collider>().enabled = false;
             CameraController.isFollowing = false;
             eagleCheck = true;
             eagleTransform.gameObject.SetActive(true);
@@ -108,16 +88,17 @@ public class PlayerController : MonoBehaviour
                 Append(transform.
                     DOMove(transform.position + new Vector3(eaglePosition.x, eaglePosition.y, -eaglePosition.z), 2f).
                     SetEase(Ease.InQuad).
-                    OnComplete(() => gameObject.SetActive(false)));
+                    OnComplete(() =>
+                    {
+                        eagleTransform.localPosition = new Vector3(0, 20, -90);
+                        eagleTransform.gameObject.SetActive(false);
+                        Kill();
+                    }));
         }
 
     }
     private void MovementAnimations(Vector3 movePosition, Action onComplete = null)
     {
-
-
-
-
         transform.forward = movementVector;
         transform.DOScale(localScale * 0.9f, 0.1f).OnComplete(() =>
         {
@@ -127,13 +108,28 @@ public class PlayerController : MonoBehaviour
     }
     public void Initialize(GridManager gridManager, BiomeManager biomeManager)
     {
-        transform.position = gridManager.TileGrid.GetWorldPosition(new GridVector(0, 0));
+        transform.position = gridManager.TileGrid.GetWorldPosition(GridVector.Zero);
         this.gridManager = gridManager;
         this.biomeManager = biomeManager;
     }
     private void OnTriggerEnter(Collider collider)
     {
-        if (collider.CompareTag("Car") || collider.CompareTag("Train")) gameObject.SetActive(false);
+        if (collider.CompareTag("Car") || collider.CompareTag("Train")) Kill();
+    }
+
+    private async void Kill()
+    {
+
+        gameObject.SetActive(false);
+        await biomeManager.Restart();
+        CameraController.isFollowing = true;
+        gameObject.GetComponent<Collider>().enabled = true;
+        eagleCheck = false;
+        UpdateScore(0);
+        gameObject.SetActive(true);
+        transform.position = gridManager.TileGrid.GetWorldPosition(GridVector.Zero);
+        gridManager.TileGrid.TryGetCell(GridVector.Zero, out nextCell);
+
     }
     private void OnEnable()
     {

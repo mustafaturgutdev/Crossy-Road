@@ -3,7 +3,7 @@ using PoolSystem;
 
 public class ObstacleManager
 {
-    private static Dictionary<ObstacleType,int> obstacleInitialSize = new Dictionary<ObstacleType,int>()
+    private static Dictionary<ObstacleType, int> obstacleInitialSize = new Dictionary<ObstacleType, int>()
     {
        { ObstacleType.Tree1,10},
        { ObstacleType.Tree2,10},
@@ -11,13 +11,13 @@ public class ObstacleManager
        { ObstacleType.Rock1,10},
        { ObstacleType.Rock2,10},
        { ObstacleType.Rock3,10},
-
-              { ObstacleType.Car,20},
-                     { ObstacleType.Wood1,10},
-                     { ObstacleType.Wood2,10},
-                     { ObstacleType.Wood3,10},
-                                          { ObstacleType.Train,10},
-                                          { ObstacleType.Truck,10},
+       { ObstacleType.Car,20},
+       { ObstacleType.Wood1,10},
+       { ObstacleType.Wood2,10},
+       { ObstacleType.Wood3,10},
+       { ObstacleType.Train,10},
+       { ObstacleType.Truck,10},
+       { ObstacleType.Leaf,20},
     };
 
     private readonly Dictionary<ObstacleType, Pool<Obstacle>> multiPool = new();

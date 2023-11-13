@@ -6,50 +6,14 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
-public enum BiomeType
-{
-    Road,
-    Grass,
-    Rail,
-    Water
-}
-public enum TileType
-{
-    Rail,
-    Water,
-    Road,
-    RoadStart,
-    RoadEnd,
-    RoadMiddle,
-    Grass1,
-    Grass2,
-    RailLight
-}
-
-public enum ObstacleType
-{
-    Empty = 0,
-    Tree1,
-    Tree2,
-    Tree3,
-    Rock1,
-    Rock2,
-    Rock3,
-    Car,
-    Wood1,
-    Wood2,
-    Wood3,
-    Train,
-    Truck,
-}
-
 public class BiomeManager
 {
+    private GridVector biomeLenght = new GridVector(-11, 11);
     private int spawnLenght = 10;
     private BiomeType lastBiome = BiomeType.Grass;
     private int playerCurrentRow;
-    private int startRow;
-    private int endRow = 4;
+    private int startRow = -14;
+    private int endRow = 5;
     private readonly TileManager tileManager;
     private readonly ObstacleManager obstacleManager;
     private readonly GridManager gridManager;
@@ -101,7 +65,7 @@ public class BiomeManager
     };
     public void Initialize()
     {
-        CreateGrassBiome(new GridVector(4, 11), new GridVector(0, -5));
+        CreateGrassBiome(new GridVector(19, 23), new GridVector(-14, biomeLenght.Row));
 
         for (int i = 0; i < 6; i++)
         {
@@ -112,27 +76,46 @@ public class BiomeManager
     public async void UpdateBiomes(int playerCurrentRow)
     {
         this.playerCurrentRow = playerCurrentRow;
-        while (playerCurrentRow - 10 > startRow)
+        while (playerCurrentRow - 20 > startRow)
         {
             DestroyBiome();
             await Task.Yield();
         }
 
-        while (playerCurrentRow + 10 > endRow)
+        while (playerCurrentRow + 20 > endRow)
         {
             CreateBiome();
             await Task.Yield();
         }
     }
 
+    public async Task Restart()
+    {
+        while (startRow <= endRow)
+        {
+            DestroyBiome();
+            await Task.Yield();
+        }
+        endRow = 5;
+        startRow = -14;
+        playerCurrentRow = 0;
+        await Task.Delay(300);
+        Initialize();
+    }
+
     private void DestroyBiome()
     {
-        for (int i = -5; i <= 5; i++)
+        for (int i = biomeLenght.Row; i <= biomeLenght.Column; i++)
         {
             GridVector gridPosition = new GridVector(startRow, i);
 
             if (gridManager.ObstacleGrid.DisPlace(gridPosition, out Obstacle obstacle))
+            {
+                if (obstacle.ObstacleType == ObstacleType.Leaf)
+                    i = i;
                 obstacleManager.ReturnObstacle(obstacle);
+            }
+
 
             if (gridManager.TileGrid.DisPlace(gridPosition, out Tile tile))
                 tileManager.ReturnTile(tile);
@@ -148,8 +131,8 @@ public class BiomeManager
 
         lastBiome = biomeType;
 
-        GridVector biomeSize = new GridVector(Random.Range(1, 5), 11);
-        GridVector startPosition = new GridVector(endRow, -5);
+        GridVector biomeSize = new GridVector(Random.Range(1, 5), 23);
+        GridVector startPosition = new GridVector(endRow, biomeLenght.Row);
         switch (biomeType)
         {
             case BiomeType.Road:
@@ -187,7 +170,10 @@ public class BiomeManager
                 else
                     gridManager.TileGrid.Place(tileManager.GetTile(TileType.Grass2), gridPosition);
 
-                if (j != 5 && 0.83f < Random.Range(0f, 1f))
+                if (j != 11 &&
+                    0.83f < Random.Range(0f, 1f) &&
+                    (!gridManager.ObstacleGrid.TryGetValue(new GridVector(gridPosition.Row - 1, gridPosition.Column), out Obstacle obstacle) ||
+                    obstacle.ObstacleType != ObstacleType.Leaf))
                 {
                     gridManager.ObstacleGrid.Place(obstacleManager.GetObstacle(grassObstacles[Random.Range(0, grassObstacles.Count)]), gridPosition);
                 }
@@ -222,20 +208,33 @@ public class BiomeManager
     }
     private void CreateWaterBiome(GridVector biomeSize, GridVector startPosition)
     {
+
+        for (int i = 0; i < 2; i++)
+        {
+            GridVector rand = new GridVector(startPosition.Row, Random.Range(-5, 5));
+            if (gridManager.ObstacleGrid.TryGetValue(rand, out _) || gridManager.ObstacleGrid.TryGetValue(new GridVector(rand.Row - 1, rand.Column), out _)) i--;
+            else gridManager.ObstacleGrid.Place(obstacleManager.GetObstacle(ObstacleType.Leaf), rand);
+        }
+
         for (int i = 0; i < biomeSize.Row; i++)
         {
             for (int j = 0; j < biomeSize.Column; j++)
             {
                 GridVector gridPosition = startPosition + new GridVector(i, j);
                 gridManager.TileGrid.Place(tileManager.GetTile(TileType.Water), gridPosition);
-            }
 
-            int value = 0;
-            if (i % 2 == 0)
-                value = -spawnLenght;
-            else
-                value = spawnLenght;
-            _ = SpawnWoodUntil(gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, value)), gridManager.ObstacleGrid.GetWorldPosition(new GridVector(startPosition.Row + i, -value)));
+                if (gridManager.ObstacleGrid.TryGetValue(new GridVector(gridPosition.Row - 1, gridPosition.Column), out Obstacle obstacle) &&
+                    obstacle.ObstacleType == ObstacleType.Leaf)
+                {
+                    int rand = Random.Range(-2, 2);
+                    for (int k = 0; k <= Mathf.Abs(rand); k++)
+                    {
+                        GridVector gridPos = gridPosition + new GridVector(0, rand < 0 ? -k : k);
+                        if (!gridManager.ObstacleGrid.TryGetValue(gridPos, out _))
+                            gridManager.ObstacleGrid.Place(obstacleManager.GetObstacle(ObstacleType.Leaf), gridPos);
+                    }
+                }
+            }
         }
     }
     private async Task SpawnTrainUntil(Transform light, Vector3 spawnPosition, Vector3 endPosition, bool positive)
@@ -247,7 +246,7 @@ public class BiomeManager
 
         bool lightOn = true;
 
-        while (playerRow + 30 > endRow)
+        while (playerRow + 50 > endRow && endRow != 5)
         {
             elapsedTime += Time.deltaTime;
             if (elapsedTime > frequency)
@@ -263,7 +262,7 @@ public class BiomeManager
                 light.localScale = new Vector3(0.1f, 1f, 0.1f);
                 lightOn = true;
             }
-            else if (lightOn && frequency - elapsedTime < 1.5f)
+            else if (lightOn && frequency - elapsedTime < 1.2f)
             {
                 light.localScale = new Vector3(0.2f, 2, 0.2f);
                 lightOn = false;
@@ -328,12 +327,12 @@ public class BiomeManager
 
 
 
-        while (playerRow + 30 > endRow)
+        while (playerRow + 50 > endRow && endRow != 5)
         {
             elapsedTime += Time.deltaTime;
             if (elapsedTime > frequency)
             {
-                Obstacle obstacle = obstacleManager.GetObstacle(roadObstacles[Random.Range(0,roadObstacles.Count)]);
+                Obstacle obstacle = obstacleManager.GetObstacle(roadObstacles[Random.Range(0, roadObstacles.Count)]);
 
                 if (positive)
                     obstacle.transform.eulerAngles = new Vector3(0, -90, 0);
