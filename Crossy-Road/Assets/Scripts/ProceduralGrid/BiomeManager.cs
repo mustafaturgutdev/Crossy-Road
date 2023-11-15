@@ -111,8 +111,6 @@ public class BiomeManager
 
             if (gridManager.ObstacleGrid.DisPlace(gridPosition, out Obstacle obstacle))
             {
-                if (obstacle.ObstacleType == ObstacleType.Leaf)
-                    i = i;
                 obstacleManager.ReturnObstacle(obstacle);
             }
 

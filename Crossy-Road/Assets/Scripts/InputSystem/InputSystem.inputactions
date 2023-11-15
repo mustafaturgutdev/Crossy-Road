@@ -13,6 +13,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "New action",
+                    "type": "PassThrough",
+                    "id": "e316cfbd-0073-4d7c-be2c-4969c02e4859",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -72,59 +81,26 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "2D Vector",
-                    "id": "95003341-43c3-4b47-bda1-572ed24c9464",
-                    "path": "2DVector",
+                    "name": "",
+                    "id": "1e17de00-a966-49da-9d3c-a1fa30ebf5ad",
+                    "path": "<Touchscreen>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Movement",
-                    "isComposite": true,
+                    "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "up",
-                    "id": "11b4f640-0357-4796-be65-b596238cc371",
-                    "path": "<Touchscreen>/primaryTouch/tap",
+                    "name": "",
+                    "id": "1e159f08-05b8-4d33-8aae-896f19819263",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Movement",
+                    "action": "New action",
                     "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "22c7c127-923d-40a2-b332-938cc4bd2639",
-                    "path": "<Touchscreen>/delta/down",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "c45dca98-fd87-49ca-bd67-a4201e4eb407",
-                    "path": "<AndroidJoystick>/stick/left",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "ae34d04a-8428-4cab-97dc-6319b82865e4",
-                    "path": "<AndroidJoystick>/stick/right",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 }
             ]
         }

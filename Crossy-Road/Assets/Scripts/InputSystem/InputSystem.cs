@@ -35,6 +35,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""New action"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""e316cfbd-0073-4d7c-be2c-4969c02e4859"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -94,59 +103,26 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""2D Vector"",
-                    ""id"": ""95003341-43c3-4b47-bda1-572ed24c9464"",
-                    ""path"": ""2DVector"",
+                    ""name"": """",
+                    ""id"": ""1e17de00-a966-49da-9d3c-a1fa30ebf5ad"",
+                    ""path"": ""<Touchscreen>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Movement"",
-                    ""isComposite"": true,
+                    ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""up"",
-                    ""id"": ""11b4f640-0357-4796-be65-b596238cc371"",
-                    ""path"": ""<Touchscreen>/primaryTouch/tap"",
+                    ""name"": """",
+                    ""id"": ""1e159f08-05b8-4d33-8aae-896f19819263"",
+                    ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Movement"",
+                    ""action"": ""New action"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""22c7c127-923d-40a2-b332-938cc4bd2639"",
-                    ""path"": ""<Touchscreen>/delta/down"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Movement"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""left"",
-                    ""id"": ""c45dca98-fd87-49ca-bd67-a4201e4eb407"",
-                    ""path"": ""<AndroidJoystick>/stick/left"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Movement"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""ae34d04a-8428-4cab-97dc-6319b82865e4"",
-                    ""path"": ""<AndroidJoystick>/stick/right"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Movement"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -156,6 +132,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         // PlayerActionMap
         m_PlayerActionMap = asset.FindActionMap("PlayerActionMap", throwIfNotFound: true);
         m_PlayerActionMap_Movement = m_PlayerActionMap.FindAction("Movement", throwIfNotFound: true);
+        m_PlayerActionMap_Newaction = m_PlayerActionMap.FindAction("New action", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -218,11 +195,13 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_PlayerActionMap;
     private List<IPlayerActionMapActions> m_PlayerActionMapActionsCallbackInterfaces = new List<IPlayerActionMapActions>();
     private readonly InputAction m_PlayerActionMap_Movement;
+    private readonly InputAction m_PlayerActionMap_Newaction;
     public struct PlayerActionMapActions
     {
         private @InputSystem m_Wrapper;
         public PlayerActionMapActions(@InputSystem wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_PlayerActionMap_Movement;
+        public InputAction @Newaction => m_Wrapper.m_PlayerActionMap_Newaction;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionMap; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -235,6 +214,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Movement.started += instance.OnMovement;
             @Movement.performed += instance.OnMovement;
             @Movement.canceled += instance.OnMovement;
+            @Newaction.started += instance.OnNewaction;
+            @Newaction.performed += instance.OnNewaction;
+            @Newaction.canceled += instance.OnNewaction;
         }
 
         private void UnregisterCallbacks(IPlayerActionMapActions instance)
@@ -242,6 +224,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Movement.started -= instance.OnMovement;
             @Movement.performed -= instance.OnMovement;
             @Movement.canceled -= instance.OnMovement;
+            @Newaction.started -= instance.OnNewaction;
+            @Newaction.performed -= instance.OnNewaction;
+            @Newaction.canceled -= instance.OnNewaction;
         }
 
         public void RemoveCallbacks(IPlayerActionMapActions instance)
@@ -262,5 +247,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     public interface IPlayerActionMapActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnNewaction(InputAction.CallbackContext context);
     }
 }

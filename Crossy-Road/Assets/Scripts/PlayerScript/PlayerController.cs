@@ -19,51 +19,45 @@ public class PlayerController : MonoBehaviour
 
     int maxScore = 0;
 
-    private void Awake()
+    #region mobilemovement
+    Vector2 touchOrigin;
+    Vector2 endPoint;
+    #endregion
+    private void MobileMovementStarted(InputAction.CallbackContext context)
     {
-        localScale = transform.localScale;
-        inputSystem = new InputSystem();
-        inputSystem.PlayerActionMap.Movement.started += Movement;
-        inputSystem.PlayerActionMap.Movement.started += UpdateBiome;
+        touchOrigin = context.ReadValue<Vector2>();
+        Debug.Log("Works");
     }
-    private void UpdateBiome(InputAction.CallbackContext context)
+    private void MobileMovementEnd(InputAction.CallbackContext context)
     {
-        biomeManager.UpdateBiomes(nextCell.GridPosition.Row);
-    }
-#if UNITY_ANDROID
-    private void Movement(InputAction.CallbackContext context)
-    {
-        movementVector = new Vector3(0,0,1);
-        GridVector nextGridPos = gridManager.TileGrid.GetGridPosition(transform.position + movementVector);
-        if (nextGridPos.Column < -5 || nextGridPos.Column > 5) return;
-        if (gridManager.TileGrid.TryGetCell(nextGridPos, out Cell cell))
+        endPoint = context.ReadValue<Vector2>();
+        movementVector = endPoint - touchOrigin;
+        movementVector = movementVector.normalized;
+        if (movementVector.x > 0.5f)
         {
-            if (gridManager.TileGrid.TryGetValue(cell, out Tile tile))
-            {
-                if (tile is Water)
-                {
-                    if (!gridManager.ObstacleGrid.TryGetValue(nextGridPos, out _))
-                    {
-                        MovementAnimations(tile.transform.position, Kill);
-                    }
-                }
-                else if (gridManager.ObstacleGrid.TryGetValue(nextGridPos, out Obstacle obstacle))
-                {
-                    return;
-                }
-                MovementAnimations(tile.transform.position, EagleKillCheck);
-            }
-            nextCell = cell;
+            movementVector = Vector3.right;
+        }
+        else if (movementVector.x < -0.5f)
+        {
+            movementVector = Vector3.left;
+        }
+        else if (movementVector.y > 0.5f)
+        {
+            movementVector = Vector3.up;
+        }
+        else if (movementVector.y < -0.5f)
+        {
+            movementVector = Vector3.down;
+        }
+        else
+        {
+            movementVector = Vector3.zero;
         }
     }
-    
-#endif
-    
-#if UNITY_EDITOR
-    private void Movement(InputAction.CallbackContext context)
+    private void PcMovement(InputAction.CallbackContext context)
     {
         if (eagleCheck) return;
-
+      
         movementVector.x = context.ReadValue<Vector2>().x;
         movementVector.z = context.ReadValue<Vector2>().y;
         movementVector.y = 0f;
@@ -92,7 +86,26 @@ public class PlayerController : MonoBehaviour
             nextCell = cell;
         }
     }
+    private void Awake()
+    {
+        localScale = transform.localScale;
+        inputSystem = new InputSystem();
+
+#if UNITY_ANDROID
+        inputSystem.PlayerActionMap.Movement.started += MobileMovementStart;
+        inputSystem.PlayerActionMap.Movement.canceled += MobileMovementEnd;
+        inputSystem.PlayerActionMap.Movement.started += UpdateBiome;
+#elif UNITY_STANDALONE
+
+        inputSystem.PlayerActionMap.Movement.started += PcMovement;
+        inputSystem.PlayerActionMap.Movement.started += UpdateBiome;
 #endif
+    }
+    private void UpdateBiome(InputAction.CallbackContext context)
+    {
+        biomeManager.UpdateBiomes(nextCell.GridPosition.Row);
+    }
+    
     private void UpdateScore(int score)
     {
         maxScore = score;
